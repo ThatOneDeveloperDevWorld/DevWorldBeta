@@ -20,7 +20,7 @@
             height: 100vh;
             margin: 0;
             padding: 0;
-            background-color: #5ce1e6;
+            background-color: #87f2b7;
             color: #212529;
             font-family: 'Cherry Bomb One', cursive, sans-serif;
             overflow: hidden;
@@ -132,7 +132,7 @@
         <img src="https://github.com/ThatOneDeveloperDevWorld/devworldsource/blob/main/screenlogin1.png?raw=true" alt="Characters and Scenery" class="footer-img">
     </div>
 
-    <!-- Load our custom Dev World Engine before main script -->
+    <!-- Load the custom Dev World Engine -->
     <script src="devworldeng.js"></script>
 
     <script>
@@ -157,7 +157,7 @@
             }
         });
 
-        // Open the Main Choice Menu using your custom engine command
+        // 1. Initial Start Button Menu Popup via Engine
         document.getElementById('open-start-btn').addEventListener('click', () => {
             dev.createpopup({
                 title: "Welcome to Dev World",
@@ -170,30 +170,161 @@
                     "btn-login": {
                         text: "Login",
                         color: "#4ea8de",
+                        textColor: "#fff",
                         onClick: () => openLoginPopup()
                     }
                 }
             });
         });
 
-        // Create Account Popup Workflow
+        // 2. Signup Popup generated via engine configuration
         function openSignupPopup() {
-            // We can extend devworldeng.js or pass custom innerHTML elements if needed, 
-            // or dynamically build the form using standard engine calls:
             dev.createpopup({
                 title: "Create Account",
-                message: "Enter your details below:",
-                // Custom form injection can be handled via engine updates, 
-                // or you can pass custom HTML fields if your engine supports it.
+                inputs: {
+                    "signup-username": { type: "text", placeholder: "Username" },
+                    "signup-email": { type: "email", placeholder: "Email address" },
+                    "signup-pass": { type: "password", placeholder: "Password" }
+                },
+                buttons: {
+                    "btn-signup": {
+                        text: "Sign Up",
+                        color: "#38b000",
+                        textColor: "#fff",
+                        onClick: () => {
+                            const username = document.getElementById("signup-username").value.trim();
+                            const email = document.getElementById("signup-email").value.trim();
+                            const pass = document.getElementById("signup-pass").value;
+
+                            if (!username) {
+                                alert("Please enter a username.");
+                                document.getElementById("signup-username").focus();
+                                return;
+                            }
+                            if (!email || !pass) {
+                                alert("Please enter both email and password.");
+                                return;
+                            }
+
+                            firebase.auth().createUserWithEmailAndPassword(email, pass)
+                            .then((userCredential) => {
+                                const user = userCredential.user;
+                                return db.collection("users").doc(user.uid).set({
+                                    Username: username,
+                                    Bio: "nothing... :/",
+                                    Projects: []
+                                }, { merge: true }).then(() => {
+                                    window.location.href = "home.html";
+                                });
+                            })
+                            .catch((error) => {
+                                alert("Error: " + error.message);
+                            });
+                        }
+                    }
+                },
+                footerHtml: `
+                    <div style="font-size: 11px; color: #666; margin: 4px 0 8px 0;">OR</div>
+                    <button class="btn-custom google-auth-btn" style="background: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px;">
+                        <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.86 2.08-1.82 2.72v2.26h2.94c1.72-1.58 2.78-3.9 2.78-6.63z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.94-2.26c-.81.54-1.84.86-3.02.86-2.34 0-4.32-1.58-5.03-3.71H.96v2.33C2.45 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.75c-.18-.54-.28-1.12-.28-1.75s.1-1.21.28-1.75V4.92H.96C.35 6.13 0 7.51 0 9s.35 2.87.96 4.08l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.92l3.01 2.33c.71-2.13 2.69-3.67 5.03-3.67z"/></svg>
+                        Sign up with Google
+                    </button>
+                `
             });
-            
-            // Alternatively, you can pre-build specialized engine functions for forms!
+            attachGoogleAuthListener();
         }
 
+        // 3. Login Popup generated via engine configuration
         function openLoginPopup() {
             dev.createpopup({
                 title: "Login to Account",
-                message: "Enter your credentials below:"
+                inputs: {
+                    "login-email": { type: "email", placeholder: "Email address" },
+                    "login-pass": { type: "password", placeholder: "Password" }
+                },
+                buttons: {
+                    "btn-login": {
+                        text: "Login",
+                        color: "#38b000",
+                        textColor: "#fff",
+                        onClick: () => {
+                            const email = document.getElementById("login-email").value.trim();
+                            const pass = document.getElementById("login-pass").value;
+
+                            if (!email || !pass) {
+                                alert("Please enter both email and password.");
+                                return;
+                            }
+
+                            firebase.auth().signInWithEmailAndPassword(email, pass)
+                            .then(() => {
+                                window.location.href = "profile.html";
+                            })
+                            .catch((error) => {
+                                alert("Error: " + error.message);
+                            });
+                        }
+                    }
+                },
+                footerHtml: `
+                    <button type="button" style="font-size: 13px; color: #0077b6; background: none; border: none; cursor: pointer; text-decoration: underline; margin-bottom: 6px; font-family: 'Cherry Bomb One', cursive, sans-serif;" onclick="triggerPasswordReset()">Forgot password?</button>
+                    <div style="font-size: 11px; color: #666; margin: 4px 0 8px 0;">OR</div>
+                    <button class="btn-custom google-auth-btn" style="background: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px;">
+                        <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.86 2.08-1.82 2.72v2.26h2.94c1.72-1.58 2.78-3.9 2.78-6.63z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.94-2.26c-.81.54-1.84.86-3.02.86-2.34 0-4.32-1.58-5.03-3.71H.96v2.33C2.45 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.75c-.18-.54-.28-1.12-.28-1.75s.1-1.21.28-1.75V4.92H.96C.35 6.13 0 7.51 0 9s.35 2.87.96 4.08l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.45 2.02.96 4.92l3.01 2.33c.71-2.13 2.69-3.67 5.03-3.67z"/></svg>
+                        Sign in with Google
+                    </button>
+                `
+            });
+            attachGoogleAuthListener();
+        }
+
+        function triggerPasswordReset() {
+            const emailInput = document.getElementById('login-email');
+            const email = emailInput ? emailInput.value.trim() : '';
+
+            if (!email) {
+                alert("Please enter your email address in the login email field first, then click 'Forgot password?'.");
+                if (emailInput) emailInput.focus();
+                return;
+            }
+
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => {
+                    alert("Password reset email sent! Check your inbox.");
+                })
+                .catch((error) => {
+                    alert("Error: " + error.message);
+                });
+        }
+
+        // Re-attach Google Auth listener to dynamically created engine buttons
+        function attachGoogleAuthListener() {
+            document.querySelectorAll('.google-auth-btn').forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({ prompt: 'select_account' });
+
+                    firebase.auth().signInWithPopup(provider)
+                    .then((result) => {
+                        const user = result.user;
+                        const userRef = db.collection("users").doc(user.uid);
+                        
+                        return userRef.get().then((doc) => {
+                            if (!doc.exists) {
+                                return userRef.set({
+                                    Username: user.displayName || "DevWorldUser",
+                                    Bio: "this user didnt leave a bio for you to read.",
+                                    Projects: []
+                                });
+                            }
+                        }).then(() => {
+                            window.location.href = "home.html";
+                        });
+                    })
+                    .catch((error) => {
+                        alert("Google Sign-In failed: " + error.message);
+                    });
+                });
             });
         }
     </script>
