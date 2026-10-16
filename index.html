@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev World v0.2.0</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        * { box-sizing: border-box; user-select: none; }
+        body, html {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: #5ce1e6;
+            color: #212529;
+            font-family: 'Cherry Bomb One', cursive, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clouds-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://github.com/ThatOneDeveloperDevWorld/devworldsource/blob/main/Untitled338_20260812133205.png?raw=true');
+            background-repeat: repeat;
+            background-size: 400px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .top-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 4vh;
+        }
+
+        .logo-img {
+            max-width: 260px;
+            width: 80%;
+            height: auto;
+            margin-bottom: 5px;
+            filter: drop-shadow(3px 3px 0px #000);
+        }
+
+        .version-text {
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: #000;
+        }
+
+        .center-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2vh;
+        }
+
+        .btn-start {
+            width: 100%;
+            max-width: 280px;
+            padding: 14px;
+            background: #cceecc;
+            color: #000000;
+            border: 4px solid #000000;
+            border-radius: 25px;
+            font-family: 'Cherry Bomb One', cursive, sans-serif;
+            font-size: 24px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #000000;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            text-align: center;
+        }
+
+        .btn-start:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #000000;
+        }
+
+        .footer-scene {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1vh;
+        }
+
+        .footer-img {
+            width: 85%;
+            height: auto;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="clouds-bg"></div>
+
+    <div class="top-container">
+        <img src="https://github.com/ThatOneDeveloperDevWorld/devworldsource/blob/main/logo1.png?raw=true" alt="Dev World Logo" class="logo-img" onerror="this.src='Devworldlogobeta.png'">
+        <div class="version-text">v0.2.0</div>
+    </div>
+
+    <div class="center-container">
+        <button id="open-start-btn" class="btn-start">START!</button>
+    </div>
+
+    <div class="footer-scene">
+        <img src="https://github.com/ThatOneDeveloperDevWorld/devworldsource/blob/main/screenlogin1.png?raw=true" alt="Characters and Scenery" class="footer-img">
+    </div>
+
+    <!-- Load our custom Dev World Engine before main script -->
+    <script src="devworldeng.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlHHkVs9AVAAknCAMknG_dAYzAIU9eGSA",
+            authDomain: "dev-world-c65f5.firebaseapp.com",
+            projectId: "dev-world-c65f5",
+            storageBucket: "dev-world-c65f5.firebasestorage.app",
+            messagingSenderId: "961103609829",
+            appId: "1:961103609829:web:ea87f9d0eb63dfde13790c"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = "profile.html";
+            }
+        });
+
+        // Open the Main Choice Menu using your custom engine command
+        document.getElementById('open-start-btn').addEventListener('click', () => {
+            dev.createpopup({
+                title: "Welcome to Dev World",
+                buttons: {
+                    "btn-create": {
+                        text: "Create Account",
+                        color: "#ffd166",
+                        onClick: () => openSignupPopup()
+                    },
+                    "btn-login": {
+                        text: "Login",
+                        color: "#4ea8de",
+                        onClick: () => openLoginPopup()
+                    }
+                }
+            });
+        });
+
+        // Create Account Popup Workflow
+        function openSignupPopup() {
+            // We can extend devworldeng.js or pass custom innerHTML elements if needed, 
+            // or dynamically build the form using standard engine calls:
+            dev.createpopup({
+                title: "Create Account",
+                message: "Enter your details below:",
+                // Custom form injection can be handled via engine updates, 
+                // or you can pass custom HTML fields if your engine supports it.
+            });
+            
+            // Alternatively, you can pre-build specialized engine functions for forms!
+        }
+
+        function openLoginPopup() {
+            dev.createpopup({
+                title: "Login to Account",
+                message: "Enter your credentials below:"
+            });
+        }
+    </script>
+</body>
+</html>
